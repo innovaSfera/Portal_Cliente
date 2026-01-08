@@ -16,6 +16,7 @@ interface CalendarBoxProps {
   onWhatsAppClick?: (handler: () => void) => void;
 }
 
+
 export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>("month");
