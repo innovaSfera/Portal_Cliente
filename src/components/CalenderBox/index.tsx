@@ -42,15 +42,18 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
     descricao: "",
     dataInicio: "",
     dataFim: "",
-    horaInicio: "",
-    horaFim: "",
     status: EScheduleStatus.AConfirmar,
-    tipoAgendamento: "consulta",
-    branchOfficeId: "",
-    employeeId: "",
-    servicoId: "",
-    observacoes: "",
+    diaTodo: false,
+    filialId: "",
+    idFuncionario: "",
+    idCliente: "",
+    observacao: "",
+    localizacao: "",
   });
+  
+  // Estados auxiliares para hora (não existem no backend)
+  const [horaInicio, setHoraInicio] = useState("08:00");
+  const [horaFim, setHoraFim] = useState("09:00");
 
   // Carregar agendamentos do cliente
   useEffect(() => {
@@ -67,17 +70,24 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
       const schedules = await scheduleService.getSchedulesByCustomerId(user.id);
 
       // Converter para formato FullCalendar
-      const calendarEvents: EventInput[] = schedules.map((schedule) => ({
-        id: schedule.id,
-        title: schedule.titulo,
-        start: `${schedule.dataInicio}T${schedule.horaInicio}`,
-        end: `${schedule.dataFim}T${schedule.horaFim}`,
-        backgroundColor: getStatusColor(Number(schedule.status)),
-        borderColor: getStatusColor(Number(schedule.status)),
-        extendedProps: {
-          ...schedule,
-        },
-      }));
+      const calendarEvents: EventInput[] = schedules.map((schedule) => {
+        // Extrair data e hora do DateTime
+        const startDate = new Date(schedule.dataInicio);
+        const endDate = new Date(schedule.dataFim);
+        
+        return {
+          id: schedule.id,
+          title: schedule.titulo,
+          start: startDate,
+          end: endDate,
+          backgroundColor: getStatusColor(Number(schedule.status)),
+          borderColor: getStatusColor(Number(schedule.status)),
+          allDay: schedule.diaTodo || false,
+          extendedProps: {
+            ...schedule,
+          },
+        };
+      });
 
       setEvents(calendarEvents);
     } catch (error) {
@@ -120,23 +130,25 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
     // Preencher form com data selecionada
     const startDate = selectInfo.start.toISOString().split("T")[0];
     const startTime = selectInfo.start.toTimeString().slice(0, 5);
+    const endDate = selectInfo.end.toISOString().split("T")[0];
     const endTime = selectInfo.end.toTimeString().slice(0, 5);
 
     setFormData({
       titulo: "",
       descricao: "",
       dataInicio: startDate,
-      dataFim: startDate,
-      horaInicio: startTime,
-      horaFim: endTime,
+      dataFim: endDate,
       status: EScheduleStatus.AConfirmar,
-      tipoAgendamento: "consulta",
-      branchOfficeId: "",
-      employeeId: "",
-      servicoId: "",
-      observacoes: "",
-      customerId: user?.id || "",
+      diaTodo: false,
+      filialId: "",
+      idFuncionario: "",
+      idCliente: user?.id || "",
+      observacao: "",
+      localizacao: "",
     });
+    
+    setHoraInicio(startTime);
+    setHoraFim(endTime);
 
     openModal();
   };
@@ -149,28 +161,32 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
     setIsEditing(true);
 
     // Preencher form com dados do evento
+    const startDate = new Date(scheduleData.dataInicio);
+    const endDate = new Date(scheduleData.dataFim);
+    
     setFormData({
       id: scheduleData.id,
       titulo: scheduleData.titulo,
       descricao: scheduleData.descricao,
-      dataInicio: scheduleData.dataInicio,
-      dataFim: scheduleData.dataFim,
-      horaInicio: scheduleData.horaInicio,
-      horaFim: scheduleData.horaFim,
+      dataInicio: startDate.toISOString().split("T")[0],
+      dataFim: endDate.toISOString().split("T")[0],
       status: Number(scheduleData.status) as EScheduleStatus,
-      tipoAgendamento: scheduleData.tipoAgendamento,
-      branchOfficeId: scheduleData.branchOfficeId || "",
-      employeeId: scheduleData.employeeId || "",
-      servicoId: scheduleData.servicoId || "",
-      observacoes: scheduleData.observacoes || "",
-      customerId: user?.id || "",
+      diaTodo: scheduleData.diaTodo || false,
+      filialId: scheduleData.filialId || "",
+      idFuncionario: scheduleData.idFuncionario || "",
+      idCliente: user?.id || "",
+      observacao: scheduleData.observacao || "",
+      localizacao: scheduleData.localizacao || "",
     });
+    
+    setHoraInicio(startDate.toTimeString().slice(0, 5));
+    setHoraFim(endDate.toTimeString().slice(0, 5));
 
     openModal();
   };
 
   const handleSave = async () => {
-    if (!formData.titulo || !formData.dataInicio || !formData.horaInicio) {
+    if (!formData.titulo || !formData.dataInicio) {
       alert("Preencha todos os campos obrigatórios.");
       return;
     }
@@ -181,10 +197,16 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
     }
 
     try {
+      // Combinar data + hora para criar DateTime ISO completo
+      const dataInicioCompleta = `${formData.dataInicio}T${horaInicio}:00`;
+      const dataFimCompleta = `${formData.dataFim}T${horaFim}:00`;
+      
       const scheduleData: ScheduleRequestDto = {
         ...formData,
-        customerId: user.id,
-        branchOfficeId: formData.branchOfficeId || "",
+        dataInicio: dataInicioCompleta,
+        dataFim: dataFimCompleta,
+        idCliente: user.id,
+        status: formData.status || EScheduleStatus.AConfirmar,
       } as ScheduleRequestDto;
 
       if (isEditing && formData.id) {
@@ -334,8 +356,8 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
               </label>
               <input
                 type="time"
-                value={formData.horaInicio}
-                onChange={(e) => handleInputChange("horaInicio", e.target.value)}
+                value={horaInicio}
+                onChange={(e) => setHoraInicio(e.target.value)}
                 disabled={!canEdit()}
                 className="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white disabled:bg-gray-100 disabled:cursor-not-allowed"
               />
@@ -347,8 +369,8 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
               </label>
               <input
                 type="time"
-                value={formData.horaFim}
-                onChange={(e) => handleInputChange("horaFim", e.target.value)}
+                value={horaFim}
+                onChange={(e) => setHoraFim(e.target.value)}
                 disabled={!canEdit()}
                 className="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white disabled:bg-gray-100 disabled:cursor-not-allowed"
               />
@@ -380,8 +402,8 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
               Observações
             </label>
             <textarea
-              value={formData.observacoes}
-              onChange={(e) => handleInputChange("observacoes", e.target.value)}
+              value={formData.observacao}
+              onChange={(e) => handleInputChange("observacao", e.target.value)}
               disabled={!canEdit()}
               rows={2}
               className="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white disabled:bg-gray-100 disabled:cursor-not-allowed"

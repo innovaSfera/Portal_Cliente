@@ -12,10 +12,10 @@ class ScheduleService {
   async getSchedulesByCustomerId(customerId: string): Promise<ScheduleResponseDto[]> {
     try {
       const response = await apiInstance.get<ScheduleResponseDto[]>(
-        '/Schedule/SearchSchedule',
+        '/Schedule',
         {
           params: {
-            customerId,
+            idCliente: customerId,
           },
         }
       );
@@ -23,6 +23,10 @@ class ScheduleService {
       return response.data || [];
     } catch (error) {
       if (error instanceof AxiosError) {
+        // Se retornar 204 (NoContent), significa que não há agendamentos
+        if (error.response?.status === 204) {
+          return [];
+        }
         throw new Error(
           error.response?.data?.message || 'Erro ao buscar agendamentos.'
         );
@@ -110,7 +114,7 @@ class ScheduleService {
   async createSchedule(scheduleData: ScheduleRequestDto): Promise<ScheduleResponseDto> {
     try {
       const response = await apiInstance.post<ScheduleResponseDto>(
-        '/Schedule/PostSchedule',
+        '/Schedule',
         scheduleData
       );
 
@@ -141,7 +145,7 @@ class ScheduleService {
   ): Promise<ScheduleResponseDto> {
     try {
       const response = await apiInstance.put<ScheduleResponseDto>(
-        `/Schedule/PutSchedule/${scheduleId}`,
+        `/Schedule`,
         { ...scheduleData, id: scheduleId }
       );
 
@@ -168,7 +172,7 @@ class ScheduleService {
    */
   async deleteSchedule(scheduleId: string): Promise<void> {
     try {
-      await apiInstance.delete(`/Schedule/DeleteSchedule/${scheduleId}`);
+      await apiInstance.delete(`/Schedule/${scheduleId}`);
     } catch (error) {
       if (error instanceof AxiosError) {
         if (error.response?.status === 404) {
