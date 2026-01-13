@@ -9,7 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fullcalendar/core": "^6.1.20",
+    "@fullcalendar/daygrid": "^6.1.20",
+    "@fullcalendar/interaction": "^6.1.20",
+    "@fullcalendar/react": "^6.1.20",
+    "@fullcalendar/timegrid": "^6.1.20",
     "apexcharts": "^4.5.0",
+    "axios": "^1.13.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
@@ -22,8 +28,7 @@
     "react": "^19.2.3",
     "react-apexcharts": "^1.7.0",
     "react-dom": "^19.2.3",
-    "react-input-mask": "^2.0.4",
-    "react-input-mask-next": "^3.0.0-alpha.12",
+    "react-select": "^5.10.2",
     "swiper": "^11.2.10",
     "tailwind-merge": "^2.6.0"
   },
@@ -31,7 +36,6 @@
     "@types/node": "^22",
     "@types/react": "19.0.8",
     "@types/react-dom": "19.0.3",
-    "@types/react-input-mask": "^3.0.6",
     "autoprefixer": "^10.4.20",
     "eslint": "^9",
     "eslint-config-next": "15.1.6",

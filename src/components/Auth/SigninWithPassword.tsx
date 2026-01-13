@@ -1,55 +1,88 @@
 "use client";
-import { EmailIcon, PasswordIcon } from "@/assets/icons";
+import { PasswordIcon } from "@/assets/icons";
 import { useAuth } from "@/contexts/auth-context";
 import Link from "next/link";
 import React, { useState } from "react";
 import InputGroup from "../FormElements/InputGroup";
 import { Checkbox } from "../FormElements/checkbox";
+import { CpfInput } from "../FormElements/CpfInput";
 
 export default function SigninWithPassword() {
-  const { login } = useAuth();
+  const { login, error: authError } = useAuth();
   const [data, setData] = useState({
-    email: process.env.NEXT_PUBLIC_DEMO_USER_MAIL || "",
-    password: process.env.NEXT_PUBLIC_DEMO_USER_PASS || "",
+    cpf: "",
+    password: "",
     remember: false,
   });
 
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setData({
       ...data,
       [e.target.name]: e.target.value,
     });
+    // Limpar erro quando usuário começar a digitar
+    if (error) setError(null);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     setLoading(true);
+    setError(null);
 
-    // Simular um pequeno delay e então fazer login
-    setTimeout(() => {
+    try {
+      // Validações básicas
+      const cleanCpf = data.cpf.replace(/\D/g, "");
+      if (cleanCpf.length !== 11) {
+        setError("CPF inválido. Digite os 11 dígitos.");
+        setLoading(false);
+        return;
+      }
+
+      if (data.password.length < 6) {
+        setError("Senha deve ter no mínimo 6 caracteres.");
+        setLoading(false);
+        return;
+      }
+
+      // Realizar login via API
+      await login(data.cpf, data.password);
+
       // Salvar no cookie também para o middleware
       document.cookie = "isAuthenticated=true; path=/; max-age=86400"; // 24 horas
-      
-      login(data.email, data.password);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Erro ao realizar login.";
+      setError(errorMessage);
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <InputGroup
-        type="email"
-        label="Email"
-        className="[&_input]:py-3.5"
-        placeholder="seu@email.com"
-        name="email"
-        handleChange={handleChange}
-        value={data.email}
-        icon={<EmailIcon />}
-      />
+      {/* Mensagem de erro */}
+      {(error || authError) && (
+        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-800 dark:bg-red-900/20 dark:text-red-400">
+          {error || authError}
+        </div>
+      )}
+
+      {/* Campo CPF com máscara */}
+      <div>
+        <label className="mb-2.5 block text-sm font-medium text-dark dark:text-white">
+          CPF
+        </label>
+        <CpfInput
+          value={data.cpf}
+          onChange={handleChange}
+          name="cpf"
+          disabled={loading}
+          placeholder="000.000.000-00"
+          className="w-full rounded-lg border border-stroke bg-transparent py-3.5 pl-4 pr-4 text-dark outline-none transition focus:border-primary active:border-primary disabled:cursor-not-allowed disabled:bg-gray-2 disabled:opacity-70 dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary"
+        />
+      </div>
 
       <InputGroup
         type="password"
@@ -60,6 +93,7 @@ export default function SigninWithPassword() {
         handleChange={handleChange}
         value={data.password}
         icon={<PasswordIcon />}
+        disabled={loading}
       />
 
       <div className="flex items-center justify-between py-1">
