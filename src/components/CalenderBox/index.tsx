@@ -346,7 +346,7 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
       {/* Toast Container */}
       <ToastContainer toasts={toasts} onClose={removeToast} />
 
-      <div className="w-full rounded-lg bg-white p-4 shadow-1 dark:bg-gray-dark dark:shadow-card">
+      <div className="w-full rounded-lg bg-white p-2 sm:p-4 shadow-1 dark:bg-gray-dark dark:shadow-card">
         <FullCalendar
           ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -395,7 +395,7 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
               value={formData.titulo}
               onChange={(e) => handleInputChange("titulo", e.target.value)}
               disabled={!canEdit()}
-              className="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full rounded-lg border border-stroke px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white disabled:bg-gray-100 disabled:cursor-not-allowed"
               placeholder="Ex: Consulta com Fisioterapeuta"
             />
           </div>
@@ -410,14 +410,14 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
               onChange={(e) => handleInputChange("descricao", e.target.value)}
               disabled={!canEdit()}
               rows={3}
-              className="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full rounded-lg border border-stroke px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white disabled:bg-gray-100 disabled:cursor-not-allowed"
               placeholder="Descreva o motivo do agendamento..."
             />
           </div>
 
           {/* Data e Hora */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="sm:col-span-2">
               <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
                 Data <span className="text-red-500">*</span>
               </label>
@@ -429,7 +429,7 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
                   handleInputChange("dataFim", e.target.value);
                 }}
                 disabled={!canEdit()}
-                className="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className="w-full rounded-lg border border-stroke px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white disabled:bg-gray-100 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -442,7 +442,7 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
                 value={horaInicio}
                 onChange={(e) => setHoraInicio(e.target.value)}
                 disabled={!canEdit()}
-                className="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className="w-full rounded-lg border border-stroke px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white disabled:bg-gray-100 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -455,7 +455,7 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
                 value={horaFim}
                 onChange={(e) => setHoraFim(e.target.value)}
                 disabled={!canEdit()}
-                className="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className="w-full rounded-lg border border-stroke px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white disabled:bg-gray-100 disabled:cursor-not-allowed"
               />
             </div>
           </div>
@@ -469,7 +469,7 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
               value={formData.status}
               onChange={(e) => handleInputChange("status", Number(e.target.value))}
               disabled={!canEdit()}
-              className="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full rounded-lg border border-stroke px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white disabled:bg-gray-100 disabled:cursor-not-allowed"
             >
               {CUSTOMER_AVAILABLE_STATUS.map((status) => (
                 <option key={status} value={status}>
@@ -531,16 +531,16 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
               onChange={(e) => handleInputChange("observacao", e.target.value)}
               disabled={!canEdit()}
               rows={2}
-              className="w-full rounded-lg border border-stroke px-4 py-3 outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full rounded-lg border border-stroke px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white disabled:bg-gray-100 disabled:cursor-not-allowed"
               placeholder="Observações adicionais..."
             />
           </div>
 
           {/* Botões */}
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4">
             <button
               onClick={closeModal}
-              className="rounded-lg bg-gray-400 px-6 py-2.5 font-medium text-white transition hover:bg-gray-500"
+              className="rounded-lg bg-gray-400 px-4 sm:px-6 py-2.5 font-medium text-sm sm:text-base text-white transition hover:bg-gray-500 order-3 sm:order-1"
             >
               Cancelar
             </button>
@@ -548,7 +548,7 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
             {isEditing && canEdit() && (
               <button
                 onClick={handleDeleteClick}
-                className="rounded-lg bg-red-500 px-6 py-2.5 font-medium text-white transition hover:bg-red-600"
+                className="rounded-lg bg-red-500 px-4 sm:px-6 py-2.5 font-medium text-sm sm:text-base text-white transition hover:bg-red-600 order-2"
               >
                 Excluir
               </button>
@@ -557,7 +557,7 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
             {canEdit() && (
               <button
                 onClick={handleSave}
-                className="rounded-lg bg-primary px-6 py-2.5 font-medium text-white transition hover:bg-primary/90"
+                className="rounded-lg bg-primary px-4 sm:px-6 py-2.5 font-medium text-sm sm:text-base text-white transition hover:bg-primary/90 order-1 sm:order-3"
               >
                 {isEditing ? "Atualizar" : "Criar"}
               </button>

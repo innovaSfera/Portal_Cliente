@@ -1,4 +1,4 @@
-/* FullCalendar v6 - Estilos Básicos */
+/* FullCalendar v6 - Estilos customizados para Portal Cliente */
 /* Importa estilos do CDN para compatibilidade com Next.js 16 */
 
 @import url('https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.20/index.global.min.css');
@@ -10,31 +10,73 @@
 
 .fc-theme-standard td,
 .fc-theme-standard th {
-  border-color: rgb(229 231 235);
+  border-color: rgb(226 232 240); /* stroke */
 }
 
+/* Botões com cor primária do sistema (#3C50E0) */
 .fc-button-primary {
-  background-color: rgb(147 51 234) !important;
-  border-color: rgb(147 51 234) !important;
+  background-color: #3C50E0 !important;
+  border-color: #3C50E0 !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
 }
 
 .fc-button-primary:hover {
-  background-color: rgb(126 34 206) !important;
-  border-color: rgb(126 34 206) !important;
+  background-color: #3141c5 !important;
+  border-color: #3141c5 !important;
 }
 
 .fc-button-primary:disabled {
   background-color: rgb(209 213 219) !important;
   border-color: rgb(209 213 219) !important;
+  opacity: 0.5 !important;
+}
+
+.fc-button-primary:not(:disabled):active,
+.fc-button-primary:not(:disabled).fc-button-active {
+  background-color: #2938b0 !important;
+  border-color: #2938b0 !important;
 }
 
 .fc-daygrid-day-number {
   color: rgb(55 65 81);
+  font-weight: 500;
 }
 
 .fc-col-header-cell-cushion {
   color: rgb(75 85 99);
   font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+/* Dia de hoje */
+.fc-day-today {
+  background-color: rgba(60, 80, 224, 0.05) !important;
+}
+
+.fc-day-today .fc-daygrid-day-number {
+  color: #3C50E0;
+  font-weight: 700;
+}
+
+/* Eventos */
+.fc-event {
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 0.875rem;
+}
+
+.fc-event:hover {
+  opacity: 0.85;
+}
+
+/* Header do calendário */
+.fc-toolbar-title {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  color: rgb(31 41 55);
 }
 
 /* Dark mode support */
@@ -57,4 +99,95 @@
 
 .dark .fc-scrollgrid {
   border-color: rgb(55 65 81);
+}
+
+.dark .fc-toolbar-title {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.dark .fc-day-today {
+  background-color: rgba(60, 80, 224, 0.15) !important;
+}
+
+.dark .fc-day-today .fc-daygrid-day-number {
+  color: #6b7dff;
+}
+
+/* Responsividade Mobile */
+@media (max-width: 640px) {
+  /* Reduzir padding e fontes */
+  .fc-toolbar {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+    padding: 0.5rem 0 !important;
+  }
+
+  .fc-toolbar-title {
+    font-size: 1rem !important;
+    order: -1;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .fc-toolbar-chunk {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .fc-button {
+    font-size: 0.75rem !important;
+    padding: 0.375rem 0.625rem !important;
+  }
+
+  .fc-button-group {
+    gap: 0.25rem;
+  }
+
+  /* Ajustar tamanho das células */
+  .fc-daygrid-day-number {
+    font-size: 0.75rem;
+    padding: 0.25rem;
+  }
+
+  .fc-col-header-cell-cushion {
+    font-size: 0.625rem;
+    padding: 0.375rem 0.125rem;
+  }
+
+  /* Eventos mais compactos */
+  .fc-event {
+    font-size: 0.75rem;
+    padding: 1px 2px;
+  }
+
+  .fc-daygrid-event-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  /* Reduzir altura das células */
+  .fc-daygrid-day-frame {
+    min-height: 3rem !important;
+  }
+
+  /* Esconder textos longos em mobile */
+  .fc-toolbar .fc-button .fc-icon {
+    font-size: 1rem;
+  }
+}
+
+/* Tablets */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .fc-toolbar-title {
+    font-size: 1.125rem !important;
+  }
+
+  .fc-button {
+    font-size: 0.875rem !important;
+    padding: 0.5rem 0.875rem !important;
+  }
+
+  .fc-daygrid-day-number {
+    font-size: 0.875rem;
+  }
 }
