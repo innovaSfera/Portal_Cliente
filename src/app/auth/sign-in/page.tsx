@@ -35,6 +35,16 @@ export default function SignIn() {
         {/* Card do Formulário */}
         <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-gray-dark sm:p-8">
           <Signin />
+          
+          {/* Link para instruções de primeiro acesso - TEMPORÁRIO */}
+          <div className="mt-4 text-center">
+            <a
+              href="/auth/first-access"
+              className="text-sm text-primary hover:text-primary/80 dark:text-primary-light dark:hover:text-primary-light/80 transition-colors"
+            >
+              Primeiro acesso? Clique aqui para ver as instruções
+            </a>
+          </div>
         </div>
 
         {/* Footer */}
