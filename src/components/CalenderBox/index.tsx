@@ -8,7 +8,11 @@ import interactionPlugin from "@fullcalendar/interaction";
 import { EventClickArg, DateSelectArg, EventInput } from "@fullcalendar/core";
 import ptBrLocale from "@fullcalendar/core/locales/pt-br";
 import Modal from "@/components/ui/Modal";
+import ConfirmModal from "@/components/ui/ConfirmModal";
+import ToastContainer from "@/components/ui/ToastContainer";
+import CalendarSkeleton from "./CalendarSkeleton";
 import { useModal } from "@/hooks/useModal";
+import { useToast } from "@/hooks/useToast";
 import { useAuth } from "@/contexts/auth-context";
 import { scheduleService } from "@/services/schedule.service";
 import { branchOfficeService } from "@/services/branch-office.service";
@@ -35,6 +39,7 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
   const { user } = useAuth();
   const calendarRef = useRef<FullCalendar>(null);
   const { isOpen, openModal, closeModal } = useModal();
+  const { toasts, removeToast, success, error: showError, warning } = useToast();
 
   const [events, setEvents] = useState<EventInput[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,6 +52,10 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
   const [employees, setEmployees] = useState<EmployeeResponseDto[]>([]);
   const [filteredEmployees, setFilteredEmployees] = useState<EmployeeResponseDto[]>([]);
   const [loadingOptions, setLoadingOptions] = useState(false);
+
+  // Estado para confirm modal
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Form fields
   const [formData, setFormData] = useState<Partial<ScheduleRequestDto>>({
@@ -149,9 +158,9 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
       });
 
       setEvents(calendarEvents);
-    } catch (error) {
-      console.error("Erro ao carregar agendamentos:", error);
-      alert("Erro ao carregar agendamentos. Tente novamente.");
+    } catch (err) {
+      console.error("Erro ao carregar agendamentos:", err);
+      showError("Erro ao carregar agendamentos. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -247,22 +256,22 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
   const handleSave = async () => {
     // Validações
     if (!formData.titulo || !formData.dataInicio) {
-      alert("Preencha o título e a data.");
+      warning("Preencha o título e a data.");
       return;
     }
     
     if (!formData.filialId) {
-      alert("Selecione uma unidade.");
+      warning("Selecione uma unidade.");
       return;
     }
     
     if (!formData.idFuncionario) {
-      alert("Selecione um profissional.");
+      warning("Selecione um profissional.");
       return;
     }
 
     if (!user?.id) {
-      alert("Usuário não autenticado.");
+      showError("Usuário não autenticado.");
       return;
     }
 
@@ -282,35 +291,40 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
       if (isEditing && formData.id) {
         // Atualizar
         await scheduleService.updateSchedule(formData.id, scheduleData);
-        alert("Agendamento atualizado com sucesso!");
+        success("Agendamento atualizado com sucesso!");
       } else {
         // Criar
         await scheduleService.createSchedule(scheduleData);
-        alert("Agendamento criado com sucesso!");
+        success("Agendamento criado com sucesso!");
       }
 
       closeModal();
       loadSchedules(); // Recarregar eventos
-    } catch (error: any) {
-      console.error("Erro ao salvar agendamento:", error);
-      alert(error.message || "Erro ao salvar agendamento. Tente novamente.");
+    } catch (err: any) {
+      console.error("Erro ao salvar agendamento:", err);
+      showError(err.message || "Erro ao salvar agendamento. Tente novamente.");
     }
+  };
+
+  const handleDeleteClick = () => {
+    setShowConfirmDelete(true);
   };
 
   const handleDelete = async () => {
     if (!formData.id) return;
 
-    const confirmDelete = confirm("Tem certeza que deseja excluir este agendamento?");
-    if (!confirmDelete) return;
-
     try {
+      setIsDeleting(true);
       await scheduleService.deleteSchedule(formData.id);
-      alert("Agendamento excluído com sucesso!");
+      success("Agendamento excluído com sucesso!");
+      setShowConfirmDelete(false);
       closeModal();
       loadSchedules();
-    } catch (error: any) {
-      console.error("Erro ao excluir agendamento:", error);
-      alert(error.message || "Erro ao excluir agendamento. Tente novamente.");
+    } catch (err: any) {
+      console.error("Erro ao excluir agendamento:", err);
+      showError(err.message || "Erro ao excluir agendamento. Tente novamente.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -324,15 +338,14 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
   };
 
   if (loading) {
-    return (
-      <div className="flex h-96 items-center justify-center rounded-lg bg-white dark:bg-gray-dark">
-        <p className="text-gray-500">Carregando agenda...</p>
-      </div>
-    );
+    return <CalendarSkeleton />;
   }
 
   return (
     <>
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} onClose={removeToast} />
+
       <div className="w-full rounded-lg bg-white p-4 shadow-1 dark:bg-gray-dark dark:shadow-card">
         <FullCalendar
           ref={calendarRef}
@@ -534,7 +547,7 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
 
             {isEditing && canEdit() && (
               <button
-                onClick={handleDelete}
+                onClick={handleDeleteClick}
                 className="rounded-lg bg-red-500 px-6 py-2.5 font-medium text-white transition hover:bg-red-600"
               >
                 Excluir
@@ -559,6 +572,19 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
           )}
         </div>
       </Modal>
+
+      {/* Confirm Modal para Exclusão */}
+      <ConfirmModal
+        isOpen={showConfirmDelete}
+        onClose={() => setShowConfirmDelete(false)}
+        onConfirm={handleDelete}
+        title="Excluir Agendamento"
+        message="Tem certeza que deseja excluir este agendamento? Esta ação não pode ser desfeita."
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        type="danger"
+        isLoading={isDeleting}
+      />
     </>
   );
 }
