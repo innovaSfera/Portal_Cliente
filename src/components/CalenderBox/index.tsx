@@ -11,8 +11,12 @@ import Modal from "@/components/ui/Modal";
 import { useModal } from "@/hooks/useModal";
 import { useAuth } from "@/contexts/auth-context";
 import { scheduleService } from "@/services/schedule.service";
+import { branchOfficeService } from "@/services/branch-office.service";
+import { employeeService } from "@/services/employee.service";
 import { ScheduleResponseDto } from "@/types/dto/response/schedule-response.dto";
 import { ScheduleRequestDto } from "@/types/dto/request/schedule-request.dto";
+import { BranchOfficeResponseDto } from "@/types/dto/response/branch-office-response.dto";
+import { EmployeeResponseDto } from "@/types/dto/response/employee-response.dto";
 import {
   EScheduleStatus,
   SCHEDULE_STATUS_LABELS,
@@ -20,6 +24,8 @@ import {
   CUSTOMER_AVAILABLE_STATUS,
   canCustomerEditStatus,
 } from "@/types/enums/schedule-status.enum";
+import Select from "@/components/form/Select";
+import SelectWithSearch from "@/components/form/SelectWithSearch";
 
 interface CalendarBoxProps {
   onWhatsAppClick?: (handler: () => void) => void;
@@ -35,6 +41,12 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<ScheduleResponseDto | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+
+  // Estados para opções dos selects
+  const [branchOffices, setBranchOffices] = useState<BranchOfficeResponseDto[]>([]);
+  const [employees, setEmployees] = useState<EmployeeResponseDto[]>([]);
+  const [filteredEmployees, setFilteredEmployees] = useState<EmployeeResponseDto[]>([]);
+  const [loadingOptions, setLoadingOptions] = useState(false);
 
   // Form fields
   const [formData, setFormData] = useState<Partial<ScheduleRequestDto>>({
@@ -61,6 +73,53 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
       loadSchedules();
     }
   }, [user]);
+
+  // Carregar unidades e profissionais ao montar
+  useEffect(() => {
+    const loadOptions = async () => {
+      try {
+        setLoadingOptions(true);
+        
+        // Buscar unidades
+        const officesData = await branchOfficeService.getAllBranchOffices();
+        setBranchOffices(officesData);
+        
+        // Buscar todos os profissionais (serão filtrados depois)
+        const employeesData = await employeeService.getAllEmployees();
+        setEmployees(employeesData);
+        setFilteredEmployees(employeesData);
+        
+      } catch (error) {
+        console.error("Erro ao carregar opções:", error);
+      } finally {
+        setLoadingOptions(false);
+      }
+    };
+    
+    loadOptions();
+  }, []);
+
+  // Filtrar profissionais quando unidade mudar
+  useEffect(() => {
+    if (formData.filialId) {
+      const filtered = employees.filter(
+        emp => emp.filialId === formData.filialId
+      );
+      setFilteredEmployees(filtered);
+      
+      // Limpar profissional se não pertencer à unidade selecionada
+      if (formData.idFuncionario) {
+        const selectedEmpBelongsToOffice = filtered.some(
+          emp => emp.id === formData.idFuncionario
+        );
+        if (!selectedEmpBelongsToOffice) {
+          handleInputChange("idFuncionario", "");
+        }
+      }
+    } else {
+      setFilteredEmployees(employees);
+    }
+  }, [formData.filialId, employees]);
 
   const loadSchedules = async () => {
     if (!user?.id) return;
@@ -186,8 +245,19 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
   };
 
   const handleSave = async () => {
+    // Validações
     if (!formData.titulo || !formData.dataInicio) {
-      alert("Preencha todos os campos obrigatórios.");
+      alert("Preencha o título e a data.");
+      return;
+    }
+    
+    if (!formData.filialId) {
+      alert("Selecione uma unidade.");
+      return;
+    }
+    
+    if (!formData.idFuncionario) {
+      alert("Selecione um profissional.");
       return;
     }
 
@@ -394,6 +464,48 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Unidade (Filial) */}
+          <div>
+            <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+              Unidade <span className="text-red-500">*</span>
+            </label>
+            <Select
+              options={branchOffices.map(office => ({
+                value: office.id,
+                label: office.nomeFilial,
+              }))}
+              value={formData.filialId || ""}
+              onChange={(value) => handleInputChange("filialId", value)}
+              placeholder="Selecione a unidade"
+              disabled={!canEdit() || loadingOptions}
+              required
+            />
+          </div>
+
+          {/* Profissional (Fisioterapeuta) */}
+          <div>
+            <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+              Profissional <span className="text-red-500">*</span>
+            </label>
+            <SelectWithSearch
+              options={filteredEmployees.map(emp => ({
+                value: emp.id,
+                label: `${emp.nome}${emp.crefito ? ` - CREFITO: ${emp.crefito}` : ''}`,
+              }))}
+              value={formData.idFuncionario || ""}
+              onChange={(value) => handleInputChange("idFuncionario", value)}
+              placeholder={formData.filialId ? "Buscar profissional..." : "Selecione uma unidade primeiro"}
+              disabled={!canEdit() || loadingOptions || !formData.filialId}
+              isClearable
+              noOptionsMessage={formData.filialId ? "Nenhum profissional encontrado nesta unidade" : "Selecione uma unidade primeiro"}
+            />
+            {formData.filialId && filteredEmployees.length === 0 && (
+              <p className="mt-1 text-sm text-yellow-600 dark:text-yellow-400">
+                ⚠️ Nenhum profissional disponível nesta unidade
+              </p>
+            )}
           </div>
 
           {/* Observações */}
