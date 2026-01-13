@@ -1,0 +1,60 @@
+/* FullCalendar v6 - Estilos Básicos */
+/* Importa estilos do CDN para compatibilidade com Next.js 16 */
+
+@import url('https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.20/index.global.min.css');
+
+/* Estilos customizados para integração com o tema do projeto */
+.fc {
+  font-family: inherit;
+}
+
+.fc-theme-standard td,
+.fc-theme-standard th {
+  border-color: rgb(229 231 235);
+}
+
+.fc-button-primary {
+  background-color: rgb(147 51 234) !important;
+  border-color: rgb(147 51 234) !important;
+}
+
+.fc-button-primary:hover {
+  background-color: rgb(126 34 206) !important;
+  border-color: rgb(126 34 206) !important;
+}
+
+.fc-button-primary:disabled {
+  background-color: rgb(209 213 219) !important;
+  border-color: rgb(209 213 219) !important;
+}
+
+.fc-daygrid-day-number {
+  color: rgb(55 65 81);
+}
+
+.fc-col-header-cell-cushion {
+  color: rgb(75 85 99);
+  font-weight: 600;
+}
+
+/* Dark mode support */
+.dark .fc-theme-standard td,
+.dark .fc-theme-standard th {
+  border-color: rgb(55 65 81);
+}
+
+.dark .fc {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.dark .fc-daygrid-day-number {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.dark .fc-col-header-cell-cushion {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.dark .fc-scrollgrid {
+  border-color: rgb(55 65 81);
+}

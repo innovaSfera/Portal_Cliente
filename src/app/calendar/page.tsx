@@ -1,4 +1,5 @@
 "use client";
+import "./fullcalendar.css";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import CalendarBox from "@/components/CalenderBox";
 import { Suspense, useState } from "react";
