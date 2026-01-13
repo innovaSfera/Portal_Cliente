@@ -21,7 +21,7 @@ class AuthService {
       };
 
       const response = await apiInstance.post<LoginResponseDto>(
-        '/User/LoginUser',
+        '/User/LoginCliente',  // Endpoint específico para login de cliente com CPF
         requestData
       );
 

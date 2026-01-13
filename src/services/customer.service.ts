@@ -13,7 +13,7 @@ class CustomerService {
       // Remove máscara do CPF
       const cleanCpf = cpf.replace(/\D/g, '');
 
-      const response = await apiInstance.get<CustomerResponseDto[]>(
+      const response = await apiInstance.get<CustomerResponseDto>(
         '/Customer/SearchCustomer',
         {
           params: {
@@ -22,9 +22,9 @@ class CustomerService {
         }
       );
 
-      // A API retorna um array, pegamos o primeiro resultado
-      if (response.data && response.data.length > 0) {
-        return response.data[0];
+      // A API retorna um objeto único
+      if (response.data) {
+        return response.data;
       }
 
       return null;
