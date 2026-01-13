@@ -198,14 +198,17 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
     // Preencher form com data selecionada
     const startDate = selectInfo.start.toISOString().split("T")[0];
     const startTime = selectInfo.start.toTimeString().slice(0, 5);
-    const endDate = selectInfo.end.toISOString().split("T")[0];
+    
+    // CORREÇÃO: dataFim deve ser o mesmo dia (não o dia seguinte)
+    // FullCalendar retorna end como dia seguinte quando seleciona dia inteiro
+    const endDate = startDate; // Usar mesma data de início
     const endTime = selectInfo.end.toTimeString().slice(0, 5);
 
     setFormData({
       titulo: "",
       descricao: "",
       dataInicio: startDate,
-      dataFim: endDate,
+      dataFim: endDate, // Mesma data de início
       status: EScheduleStatus.AConfirmar,
       diaTodo: false,
       filialId: "",
@@ -215,8 +218,8 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
       localizacao: "",
     });
     
-    setHoraInicio(startTime);
-    setHoraFim(endTime);
+    setHoraInicio(startTime || "08:00");
+    setHoraFim(endTime || "09:00");
 
     openModal();
   };
@@ -460,24 +463,35 @@ export default function CalendarBox({ onWhatsAppClick }: CalendarBoxProps = {}) 
             </div>
           </div>
 
-          {/* Status (apenas opções permitidas) */}
-          <div>
-            <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
-              Status <span className="text-red-500">*</span>
-            </label>
-            <select
-              value={formData.status}
-              onChange={(e) => handleInputChange("status", Number(e.target.value))}
-              disabled={!canEdit()}
-              className="w-full rounded-lg border border-stroke px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white disabled:bg-gray-100 disabled:cursor-not-allowed"
-            >
-              {CUSTOMER_AVAILABLE_STATUS.map((status) => (
-                <option key={status} value={status}>
-                  {SCHEDULE_STATUS_LABELS[status]}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Status (apenas opções permitidas) - Escondido para novos agendamentos */}
+          {isEditing && (
+            <div>
+              <label className="mb-2 block text-sm font-medium text-dark dark:text-white">
+                Status <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={formData.status}
+                onChange={(e) => handleInputChange("status", Number(e.target.value))}
+                disabled={!canEdit()}
+                className="w-full rounded-lg border border-stroke px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base outline-none focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white disabled:bg-gray-100 disabled:cursor-not-allowed"
+              >
+                {CUSTOMER_AVAILABLE_STATUS.map((status) => (
+                  <option key={status} value={status}>
+                    {SCHEDULE_STATUS_LABELS[status]}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          
+          {/* Aviso para novo agendamento - sempre será "A Confirmar" */}
+          {!isEditing && (
+            <div className="rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                ℹ️ Seu agendamento será criado com status <strong>"A Confirmar"</strong> e aguardará confirmação da clínica.
+              </p>
+            </div>
+          )}
 
           {/* Unidade (Filial) */}
           <div>
