@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { OverviewMenuGroup } from "./_components/overview-cards/index-menu";
 import { OverviewCardsSkeleton } from "./_components/overview-cards/skeleton";
 import MenuMobile from "@/components/MenuMobile";
+import HistoricoAtendimentos from "@/components/HistoricoAtendimentos";
 
 export default function Home() {
   return (
@@ -17,6 +18,10 @@ export default function Home() {
         <p className="text-body text-dark-5 dark:text-dark-6">
           Acesse seu perfil, agende consultas via WhatsApp e visualize seu histórico de atendimentos.
         </p>
+      </div>
+
+      <div className="mt-8">
+        <HistoricoAtendimentos />
       </div>
 
       <MenuMobile />

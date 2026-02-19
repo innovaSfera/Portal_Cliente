@@ -1,6 +1,6 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import type { Metadata } from "next";
-import { PersonalInfoForm } from "./_components/personal-info";
+import { PersonalInfoForm } from "./_components/personal-info-real";
 import { UploadPhotoForm } from "./_components/upload-photo";
 import { Suspense } from "react";
 import { OverviewMenuGroup } from "../../(home)/_components/overview-cards/index-menu";
@@ -8,7 +8,7 @@ import { OverviewCardsSkeleton } from "../../(home)/_components/overview-cards/s
 import MenuMobile from "@/components/MenuMobile";
 
 export const metadata: Metadata = {
-  title: "Settings Page",
+  title: "Perfil - Instituto Barros",
 };
 
 export default function SettingsPage() {
@@ -18,7 +18,7 @@ export default function SettingsPage() {
         <OverviewMenuGroup />
       </Suspense>
 
-      <Breadcrumb pageName="Settings" />
+      <Breadcrumb pageName="Perfil" />
 
       <div className="grid grid-cols-5 gap-8 pb-24">
         <div className="col-span-5 xl:col-span-3">

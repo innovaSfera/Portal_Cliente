@@ -9,46 +9,85 @@ import { Checkbox } from "../FormElements/checkbox";
 export default function SigninWithPassword() {
   const { login } = useAuth();
   const [data, setData] = useState({
-    email: process.env.NEXT_PUBLIC_DEMO_USER_MAIL || "",
-    password: process.env.NEXT_PUBLIC_DEMO_USER_PASS || "",
+    cpf: "",
+    password: "",
     remember: false,
   });
 
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setData({
-      ...data,
-      [e.target.name]: e.target.value,
-    });
+  // Máscara de CPF (XXX.XXX.XXX-XX)
+  const formatCPF = (value: string) => {
+    const numbers = value.replace(/\D/g, "");
+    if (numbers.length <= 11) {
+      return numbers
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    }
+    return value;
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    
+    if (name === "cpf") {
+      setData({
+        ...data,
+        [name]: formatCPF(value),
+      });
+    } else {
+      setData({
+        ...data,
+        [name]: value,
+      });
+    }
+  };
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null);
     setLoading(true);
 
-    // Simular um pequeno delay e então fazer login
-    setTimeout(() => {
-      // Salvar no cookie também para o middleware
+    try {
+      // Remove máscara do CPF (manter apenas números)
+      const cpfLimpo = data.cpf.replace(/\D/g, "");
+      
+      await login(cpfLimpo, data.password);
+      
+      // Salvar cookie para o middleware
       document.cookie = "isAuthenticated=true; path=/; max-age=86400"; // 24 horas
       
-      login(data.email, data.password);
+    } catch (err: any) {
+      // Exibir erro ao usuário
+      if (err.message) {
+        setError(err.message);
+      } else {
+        setError("Erro ao fazer login. Verifique suas credenciais.");
+      }
       setLoading(false);
-    }, 500);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {error && (
+        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+          {error}
+        </div>
+      )}
+
       <InputGroup
-        type="email"
-        label="Email"
+        type="text"
+        label="CPF"
         className="[&_input]:py-3.5"
-        placeholder="seu@email.com"
-        name="email"
+        placeholder="000.000.000-00"
+        name="cpf"
         handleChange={handleChange}
-        value={data.email}
+        value={data.cpf}
         icon={<EmailIcon />}
+        maxLength={14}
       />
 
       <InputGroup
@@ -78,7 +117,7 @@ export default function SigninWithPassword() {
         />
 
         <Link
-          href="#"
+          href="/auth/reset-password"
           className="text-sm font-medium text-primary hover:underline dark:text-primary"
         >
           Esqueceu a senha?

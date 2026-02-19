@@ -1,6 +1,7 @@
 "use client";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import CalendarBox from "@/components/CalenderBox";
+import ConsultasLista from "@/components/ConsultasLista";
 import { Suspense, useState } from "react";
 import { OverviewMenuGroup } from "../(home)/_components/overview-cards/index-menu";
 import { OverviewCardsSkeleton } from "../(home)/_components/overview-cards/skeleton";
@@ -19,6 +20,10 @@ const CalendarPage = () => {
         pageName="Agenda" 
         onButtonClick={() => whatsappHandler?.()} 
       />
+
+      <div className="mb-8">
+        <ConsultasLista />
+      </div>
 
       <CalendarBox onWhatsAppClick={(handler) => setWhatsappHandler(() => handler)} />
 
